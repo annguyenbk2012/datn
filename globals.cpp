@@ -15,7 +15,7 @@ unsigned long lastGasAlert = 0;
 unsigned long lastFireAlert = 0;
 unsigned long lastWaterAlert = 0;
 
-String doorPassword = "123456";
+String doorPassword = "12345";
 String enteredPassword = "";
 
 LiquidCrystal_I2C lcd(0x27,16,2);
@@ -24,8 +24,6 @@ DHT dht(DHT_PIN,DHTTYPE);
 MFRC522 rfid(SS_PIN,RST_PIN);
 
 Preferences prefs;
-
-Servo doorServo;
 
 WebSocketMCP mcpClient;
 

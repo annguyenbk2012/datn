@@ -435,6 +435,7 @@ void loop()
     handleRFID();
 
     handleDoor();
+
     updateSensors();
 
 }

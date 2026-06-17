@@ -11,7 +11,6 @@
 #include <LiquidCrystal_I2C.h>
 #include <SPI.h>
 #include <MFRC522.h>
-#include <ESP32Servo.h>
 #include <Preferences.h>
 #include "WebSocketMCP.h"
 
@@ -28,7 +27,7 @@
 #define RST_PIN     5
 
 // DOOR
-#define SERVO_PIN   25
+#define DOOR_LOCK_PIN   25
 
 // OUTPUT
 #define FAN_PIN     26

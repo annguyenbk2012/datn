@@ -4,31 +4,44 @@
 #include "globals.h"
 #include "config.h"
 
+bool unlocking = false;
+unsigned long unlockTime = 0;
+
 void initDoor()
 {
-    doorServo.attach(SERVO_PIN,500,2400);
-    doorServo.write(0);
+    pinMode(DOOR_LOCK_PIN, OUTPUT);
+
+    digitalWrite(
+        DOOR_LOCK_PIN,
+        LOW
+    );
 }
 
 void openDoor()
 {
-    Serial.println("[DOOR] Open");
+    Serial.println("[DOOR] OPEN");
 
-    doorServo.write(90);
+    digitalWrite(DOOR_LOCK_PIN, HIGH);
 
-    doorOpened = true;
-    doorTime = millis();
+    unlocking = true;
+    unlockTime = millis();
 }
-
 void handleDoor()
 {
-    if(doorOpened &&
-       millis()-doorTime > 3000)
+    if(unlocking &&
+       millis() - unlockTime > 1000)
     {
-        doorServo.write(0);
-        doorOpened = false;
+        Serial.println("[DOOR] CLOSE");
+
+        digitalWrite(
+            DOOR_LOCK_PIN,
+            LOW
+        );
+
+        unlocking = false;
     }
 }
+
 
 String getUID();
 void loadCards();

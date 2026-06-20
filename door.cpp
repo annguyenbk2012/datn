@@ -164,6 +164,7 @@ void handleRFID()
     else
     {
         Serial.println("[RFID] Access Denied");
+        sendRFIDDeniedEvent();
     }
 
     rfid.PICC_HaltA();

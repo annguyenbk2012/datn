@@ -6,5 +6,6 @@ float readTDS(float temp);
 void initSensor();
 void alarmOn();
 void alarmOff();
+void updateSensors();
 
 #endif

@@ -50,8 +50,6 @@
 #define V_TDS             V9
 #define V_WATER           V10
 
-#define V_FIRE            V11
-#define V_GAS             V12
 
 #define V_LED1            V13
 #define V_LED2            V14

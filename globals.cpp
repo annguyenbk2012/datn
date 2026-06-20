@@ -15,6 +15,14 @@ unsigned long lastGasAlert = 0;
 unsigned long lastFireAlert = 0;
 unsigned long lastWaterAlert = 0;
 
+bool led1State = false;
+bool led2State = false;
+bool fanState  = false;
+
+bool gasAlertSent   = false;
+bool fireAlertSent  = false;
+
+
 String doorPassword = "12345";
 String enteredPassword = "";
 

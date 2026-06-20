@@ -54,3 +54,124 @@ void initSensor()
 
     lcd.clear();
 }
+
+//=================Update Sensor=====================
+void updateSensors()
+{
+    if(millis() - lastSensorUpdate < 2000)
+        return;
+
+    lastSensorUpdate = millis();
+
+    float temp =
+        dht.readTemperature();
+
+    float hum =
+        dht.readHumidity();
+
+    if(isnan(temp))
+        temp = 0;
+
+    if(isnan(hum))
+        hum = 0;
+
+    float tds =
+        readTDS(temp);
+
+    int gasValue =
+        analogRead(GAS_PIN);
+
+    int flame =
+        digitalRead(FLAME_PIN);
+
+    bool fireDetected =
+        (flame == 0);
+
+    bool gasDetected =
+        (gasValue > 800);
+
+    bool waterGood =
+        (tds < 500);
+
+    // ===== BLYNK =====
+
+    updateBlynkSensors(
+        temp,
+        hum,
+        tds,
+        waterGood
+    );
+
+    // ===== LCD =====
+
+    lcd.setCursor(0,0);
+
+    lcd.print("T:");
+    lcd.print(temp);
+
+    lcd.print(" H:");
+    lcd.print(hum);
+
+    lcd.print("   ");
+
+    lcd.setCursor(0,1);
+
+    if(waterGood)
+        lcd.print("Water: GOOD ");
+    else
+        lcd.print("Water: BAD  ");
+
+
+    // ===== FIRE =====
+
+    if(fireDetected)
+    {
+        if(!fireAlertSent || millis() - lastFireAlert > 30000)
+        {
+            sendFireAlertEvent();
+
+            fireAlertSent = true;
+            lastFireAlert = millis();
+        }
+    }
+    else
+    {
+        fireAlertSent = false;
+    }
+
+    // ===== GAS =====
+
+    if(gasDetected)
+    {
+        if(!gasAlertSent || millis() - lastGasAlert > 30000)
+        {
+            sendGasAlertEvent();
+
+            gasAlertSent = true;
+            lastGasAlert = millis();
+        }
+    }
+    else
+    {
+        gasAlertSent = false;
+    }
+
+    // ===== ALARM =====
+
+    if(gasDetected)
+    {
+        fanState = true;
+        digitalWrite(FAN_PIN, HIGH);
+        updateBlynkFanState(true);
+    
+    }
+
+    if(fireDetected || gasDetected)
+    {
+        alarmOn();
+    }
+    else
+    {
+        alarmOff();
+    }
+}

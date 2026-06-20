@@ -21,7 +21,6 @@ extern bool fanState;
 
 extern bool gasAlertSent;
 extern bool fireAlertSent;
-extern bool waterAlertSent;
 
 extern String managerUID;
 extern String authorizedCards[50];
@@ -37,6 +36,21 @@ extern unsigned long lastSensorUpdate;
 #pragma once
 
 void syncBlynk();
-void updateSensors();
+
+void updateBlynkSensors(
+    float temp,
+    float hum,
+    float tds,
+    bool waterGood
+);
+
+void sendFireAlertEvent();
+void sendGasAlertEvent();
+void sendWaterBadEvent();
+
+void updateBlynkFanState(bool state);
+
+void sendRFIDDeniedEvent();
+void sendWrongPasswordEvent();
 
 #endif

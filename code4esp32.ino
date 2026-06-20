@@ -14,155 +14,46 @@
 #define BLYNK_PRINT Serial
 #include <BlynkSimpleEsp32.h>
 
-// ======================================================
-// BLYNK
-// ======================================================
-
-void updateSensors()
+//========= UpdateBlynkSensors =====================
+void updateBlynkSensors(
+    float temp,
+    float hum,
+    float tds,
+    bool waterGood
+)
 {
-    if(millis() - lastSensorUpdate < 2000)
-        return;
-
-    lastSensorUpdate = millis();
-
-    float temp =
-        dht.readTemperature();
-
-    float hum =
-        dht.readHumidity();
-
-    if(isnan(temp))
-        temp = 0;
-
-    if(isnan(hum))
-        hum = 0;
-
-    float tds =
-        readTDS(temp);
-
-    int gasValue =
-        analogRead(GAS_PIN);
-
-    int flame =
-        digitalRead(FLAME_PIN);
-
-    bool fireDetected =
-        (flame == 0);
-
-    bool gasDetected =
-        (gasValue > 800);
-
-    bool waterGood =
-        (tds < 500);
-
-    // ===== BLYNK =====
-
     Blynk.virtualWrite(V5,temp);
     Blynk.virtualWrite(V6,hum);
-
     Blynk.virtualWrite(V9,tds);
 
     Blynk.virtualWrite(
-        V11,
-        fireDetected ? 1 : 0
-    );
-
-    Blynk.virtualWrite(
-        V12,
-        gasDetected ? 1 : 0
-    );
-
-    Blynk.virtualWrite(
         V10,
-        waterGood ? "GOOD"
-                  : "BAD"
+        waterGood ? "GOOD" : "BAD"
     );
-
-    // ===== FIRE =====
-
-if(fireDetected)
-{
-    if(!fireAlertSent ||
-       millis() - lastFireAlert > 30000)
-    {
-        Blynk.logEvent("fire_alert");
-
-        fireAlertSent = true;
-        lastFireAlert = millis();
-    }
-}
-else
-{
-    fireAlertSent = false;
 }
 
-    // ===== GAS =====
-
-if(gasDetected)
+//=============SentAlert ========================
+void sendFireAlertEvent()
 {
-    if(!gasAlertSent ||
-       millis() - lastGasAlert > 30000)
-    {
-        Blynk.logEvent("gas_alert");
-
-        gasAlertSent = true;
-        lastGasAlert = millis();
-    }
-}
-else
-{
-    gasAlertSent = false;
+    Blynk.logEvent("fire_alert");
 }
 
-
-    // ===== WATER =====
-
-if(!waterGood)
+void sendGasAlertEvent()
 {
-    if(!waterAlertSent ||
-       millis() - lastWaterAlert > 60000)
-    {
-        Blynk.logEvent("water_bad");
-
-        waterAlertSent = true;
-        lastWaterAlert = millis();
-    }
-}
-else
-{
-    waterAlertSent = false;
+    Blynk.logEvent("gas_alert");
 }
 
-    // ===== ALARM =====
+void sendRFIDDeniedEvent()
+{
+    Blynk.logEvent("rfid_denied");
+}
 
-    if(fireDetected ||
-       gasDetected)
-    {
-        alarmOn();
-    }
-    else
-    {
-        alarmOff();
-    }
-
-    // ===== LCD =====
-
-    lcd.setCursor(0,0);
-
-    lcd.print("T:");
-    lcd.print(temp);
-
-    lcd.print(" H:");
-    lcd.print(hum);
-
-    lcd.print("   ");
-
-    lcd.setCursor(0,1);
-
-    if(waterGood)
-        lcd.print("Water: GOOD ");
-    else
-        lcd.print("Water: BAD  ");
+void updateBlynkFanState(bool state)
+{
+    Blynk.virtualWrite(
+        V_FAN,
+        state
+    );
 }
 
 // ======================================================
@@ -241,16 +132,6 @@ BLYNK_CONNECTED()
     Blynk.syncAll();
 }
 
-// ================= STATE =================
-bool led1State = false;
-bool led2State = false;
-bool fanState  = false;
-
-bool gasAlertSent   = false;
-bool fireAlertSent  = false;
-bool waterAlertSent = false;
-
-
 // ======================================================
 // MCP CALLBACK
 // ======================================================
@@ -273,7 +154,6 @@ void onConnectionStatus(
         );
     }
 }
-
 
 // ======================================================
 // SETUP
@@ -384,6 +264,18 @@ void setup()
 
     WiFiManager wm;
 
+    // Khi vào AP Mode
+    wm.setAPCallback([](WiFiManager *wm)
+    {
+        lcd.clear();
+
+        lcd.setCursor(0,0);
+        lcd.print("AP MODE");
+
+        lcd.setCursor(0,1);
+        lcd.print(WiFi.softAPIP());
+    });
+
     bool result =
         wm.autoConnect(
             "ESP32_SMARTHOME"
@@ -394,9 +286,18 @@ void setup()
         ESP.restart();
     }
 
-    Serial.println(
-        WiFi.localIP()
-    );
+    // Da ket noi WiFi thanh cong
+    lcd.clear();
+
+    lcd.setCursor(0,0);
+    lcd.print("Connecting to");
+
+    lcd.setCursor(0,1);
+    lcd.print(WiFi.SSID());
+
+    delay(3000);
+    lcd.clear();
+
 
     // ---------------- BLYNK ----------------
 

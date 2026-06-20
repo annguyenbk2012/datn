@@ -161,46 +161,13 @@ void registerMcpTools()
 
         [](const String& args)
         {
-            float temp =
-                dht.readTemperature();
-
-            float hum =
-                dht.readHumidity();
-
-            if(isnan(temp))
-                temp = 0;
-
-            if(isnan(hum))
-                hum = 0;
-
-            float tds =
-                readTDS(temp);
-
-            int gasValue =
-                analogRead(GAS_PIN);
-
-            int flame =
-                digitalRead(FLAME_PIN);
-
-            bool fireDetected =
-                (flame == 0);
-
-            bool gasDetected =
-                (gasValue > 800);
-
-            bool waterGood =
-                (tds < 500);
-
             DynamicJsonDocument doc(256);
 
             doc["temperature"] =
-                temp;
+                currentTemp;
 
             doc["humidity"] =
-                hum;
-
-            doc["tds"] =
-                tds;
+                currentHum;
 
             doc["water_quality"] =
                 waterGood ?

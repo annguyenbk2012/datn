@@ -26,13 +26,13 @@ float readTDS(float temperature)
     float compensationVoltage =
         voltage / compensationCoefficient;
 
-    float tds =
+    float tdsRaw =
         (133.42 * pow(compensationVoltage, 3)
         -255.86 * pow(compensationVoltage, 2)
         +857.39 * compensationVoltage)
         * 0.5;
 
-    return tds;
+    return tdsRaw;
 }
 
 void initSensor()
@@ -55,6 +55,12 @@ void initSensor()
     lcd.clear();
 }
 
+float currentTemp = 0;
+float currentHum = 0;
+bool fireDetected = false;
+bool gasDetected = false;
+bool waterGood = true;
+
 //=================Update Sensor=====================
 void updateSensors()
 {
@@ -75,30 +81,73 @@ void updateSensors()
     if(isnan(hum))
         hum = 0;
 
-    float tds =
+    if(!isnan(temp))
+    {
+        Serial.printf("Temp: %.2f\n",temp);
+        temp =
+            tempKalman.updateEstimate(
+                temp
+            );
+        currentTemp = temp;
+        Serial.printf("TempKalman: %.2f\n",currentTemp);
+    }
+
+    if(!isnan(hum))
+    {
+        Serial.printf("Hum: %.2f\n",hum);
+        hum =
+            humKalman.updateEstimate(
+                hum
+            );
+        currentHum = hum;
+        Serial.printf("HumKalman: %.2f\n",currentHum);
+    }
+
+    float tdsRaw =
         readTDS(temp);
 
-    int gasValue =
+    float tdsValue =
+        tdsKalman.updateEstimate(
+            tdsRaw
+        );
+    
+    Serial.printf(
+    "tdsRaw=%d tdsKalman=%.0f\n",
+    tdsRaw,
+    tdsValue
+    );
+
+    int gasRaw =
         analogRead(GAS_PIN);
 
-    int flame =
-        digitalRead(FLAME_PIN);
+    float gasValue =
+        gasKalman.updateEstimate(
+            gasRaw
+        );
 
-    bool fireDetected =
-        (flame == 0);
+    Serial.printf(
+    "gasRaw=%d gasKalman=%.0f\n",
+    gasRaw,
+    gasValue
+    );
 
-    bool gasDetected =
-        (gasValue > 800);
+    int flame = digitalRead(FLAME_PIN);
 
-    bool waterGood =
-        (tds < 500);
+    fireDetected =
+    (flame == 0);
+
+    gasDetected =
+    (gasValue > 800);
+    
+    waterGood =
+    (tdsValue < 500);
 
     // ===== BLYNK =====
 
     updateBlynkSensors(
         temp,
         hum,
-        tds,
+        tdsValue,
         waterGood
     );
 

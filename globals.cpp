@@ -1,5 +1,10 @@
 #include "globals.h"
 
+SimpleKalmanFilter tempKalman(2,2,0.01);
+SimpleKalmanFilter humKalman(2,2,0.01);
+SimpleKalmanFilter gasKalman(5,5,0.05);
+SimpleKalmanFilter tdsKalman(10,10,0.1);
+
 bool doorOpened = false;
 unsigned long doorTime = 0;
 
@@ -21,6 +26,9 @@ bool fanState  = false;
 
 bool gasAlertSent   = false;
 bool fireAlertSent  = false;
+
+unsigned long wifiLostTime = 0;
+unsigned long mcpLostTime = 0;
 
 
 String doorPassword = "12345";

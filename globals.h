@@ -4,6 +4,7 @@
 #pragma once
 #include "config.h"
 #include "WebSocketMCP.h"
+#include <SimpleKalmanFilter.h>
 
 extern DHT dht;
 extern LiquidCrystal_I2C lcd;
@@ -19,8 +20,16 @@ extern bool led1State;
 extern bool led2State;
 extern bool fanState;
 
+extern SimpleKalmanFilter tempKalman;
+extern SimpleKalmanFilter humKalman;
+extern SimpleKalmanFilter gasKalman;
+extern SimpleKalmanFilter tdsKalman;
+
 extern bool gasAlertSent;
 extern bool fireAlertSent;
+
+extern unsigned long wifiLostTime;
+extern unsigned long mcpLostTime;
 
 extern String managerUID;
 extern String authorizedCards[50];
@@ -28,6 +37,7 @@ extern int cardCount;
 extern bool enrollMode;
 extern String doorPassword;
 extern String enteredPassword;
+
 extern unsigned long lastGasAlert;
 extern unsigned long lastFireAlert;
 extern unsigned long lastWaterAlert;
@@ -40,7 +50,7 @@ void syncBlynk();
 void updateBlynkSensors(
     float temp,
     float hum,
-    float tds,
+    float tdsValue,
     bool waterGood
 );
 

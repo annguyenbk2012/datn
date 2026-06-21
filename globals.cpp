@@ -1,9 +1,8 @@
 #include "globals.h"
 
-SimpleKalmanFilter tempKalman(2,2,0.01);
-SimpleKalmanFilter humKalman(2,2,0.01);
-SimpleKalmanFilter gasKalman(5,5,0.05);
-SimpleKalmanFilter tdsKalman(10,10,0.1);
+SimpleKalmanFilter tempKalman(1,1,0.1);
+SimpleKalmanFilter humKalman(1,1,0.1);
+SimpleKalmanFilter gasKalman(10,10,0.5);
 
 bool doorOpened = false;
 unsigned long doorTime = 0;

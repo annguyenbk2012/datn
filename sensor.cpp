@@ -26,13 +26,16 @@ float readTDS(float temperature)
     float compensationVoltage =
         voltage / compensationCoefficient;
 
-    float tdsRaw =
+    float tdsValue =
         (133.42 * pow(compensationVoltage, 3)
         -255.86 * pow(compensationVoltage, 2)
         +857.39 * compensationVoltage)
         * 0.5;
 
-    return tdsRaw;
+    float correct_multiple = 1.3;
+    tdsValue = tdsValue * correct_multiple;
+
+    return tdsValue;
 }
 
 void initSensor()
@@ -103,19 +106,8 @@ void updateSensors()
         Serial.printf("HumKalman: %.2f\n",currentHum);
     }
 
-    float tdsRaw =
-        readTDS(temp);
-
     float tdsValue =
-        tdsKalman.updateEstimate(
-            tdsRaw
-        );
-    
-    Serial.printf(
-    "tdsRaw=%d tdsKalman=%.0f\n",
-    tdsRaw,
-    tdsValue
-    );
+        readTDS(temp);
 
     int gasRaw =
         analogRead(GAS_PIN);

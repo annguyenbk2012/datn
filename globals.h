@@ -23,7 +23,6 @@ extern bool fanState;
 extern SimpleKalmanFilter tempKalman;
 extern SimpleKalmanFilter humKalman;
 extern SimpleKalmanFilter gasKalman;
-extern SimpleKalmanFilter tdsKalman;
 
 extern bool gasAlertSent;
 extern bool fireAlertSent;
